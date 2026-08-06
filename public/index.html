@@ -1,0 +1,1597 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAYGAMERS — Influencer Marketing & Media Buying for iGaming</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #000000;
+      --bg: #050505;
+      --bg-subtle: #0a0a0a;
+      --surface: #0f0f0f;
+      --surface-hover: #141414;
+      --white: #ffffff;
+      --white-dim: #b0b0b0;
+      --white-muted: #555555;
+      --accent: #00ff88;
+      --accent-dim: rgba(0, 255, 136, 0.15);
+      --accent-glow: rgba(0, 255, 136, 0.08);
+      --red: #ff2d55;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) var(--black);
+    }
+
+    body {
+      font-family: var(--font-display);
+      background: var(--black);
+      color: var(--white);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      cursor: none;
+    }
+
+    /* ========== CUSTOM CURSOR ========== */
+    .cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      border: 1.5px solid var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, border-color 0.2s;
+      mix-blend-mode: difference;
+    }
+
+    .cursor-dot {
+      position: fixed;
+      width: 3px; height: 3px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+    }
+
+    .cursor.hover { width: 40px; height: 40px; border-color: var(--white); }
+
+    /* ========== LOADING SCREEN ========== */
+    @keyframes loadBar {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    /* ========== SCROLL PROGRESS ========== */
+    .scroll-line {
+      position: fixed;
+      top: 0; left: 0;
+      height: 1px;
+      background: var(--accent);
+      z-index: 10000;
+      width: 0%;
+    }
+
+    /* ========== GRID OVERLAY ========== */
+    .grid-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 120px 120px;
+    }
+
+    /* ========== CORNER BRACKETS ========== */
+    .corner-bracket {
+      position: fixed;
+      width: 20px; height: 20px;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.08;
+    }
+
+    .corner-bracket::before,
+    .corner-bracket::after {
+      content: '';
+      position: absolute;
+      background: var(--accent);
+    }
+
+    .corner-tl { top: 2rem; left: 2rem; }
+    .corner-tl::before { width: 20px; height: 1px; top: 0; left: 0; }
+    .corner-tl::after { width: 1px; height: 20px; top: 0; left: 0; }
+
+    .corner-br { bottom: 2rem; right: 2rem; }
+    .corner-br::before { width: 20px; height: 1px; bottom: 0; right: 0; }
+    .corner-br::after { width: 1px; height: 20px; bottom: 0; right: 0; }
+
+    /* ========== NAV ========== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 3rem;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .nav-brand {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--white);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      position: relative;
+      padding-bottom: 2px;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--black);
+      background: var(--accent);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.6rem 1.5rem;
+      border: none;
+      cursor: none;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+    }
+
+    .nav-cta:hover {
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.3), inset 0 0 30px rgba(0, 255, 136, 0.1);
+      transform: translateY(-1px);
+    }
+
+    /* ========== COORDINATE TAG ========== */
+    .coord-tag {
+      position: fixed;
+      bottom: 2rem;
+      left: 3rem;
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--white-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      z-index: 100;
+      writing-mode: vertical-rl;
+    }
+
+    .section-number {
+      position: fixed;
+      bottom: 2rem;
+      right: 3rem;
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--white-muted);
+      letter-spacing: 0.15em;
+      z-index: 100;
+    }
+
+    /* ========== HERO ========== */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 3;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 800px; height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      filter: blur(80px);
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 12vw, 11rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      text-transform: uppercase;
+      position: relative;
+    }
+
+    .hero-title .line {
+      display: block;
+      overflow: hidden;
+    }
+
+    .hero-title .line span {
+      display: inline-block;
+      transform: translateY(120%);
+    }
+
+    .hero-title .stroke-text {
+      -webkit-text-stroke: 1.5px var(--white);
+      color: transparent;
+    }
+
+    .hero-title .accent-text {
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--white-muted);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-top: 3rem;
+      opacity: 0;
+    }
+
+    .hero-line {
+      width: 60px;
+      height: 1px;
+      background: var(--accent);
+      margin: 2rem auto;
+      opacity: 0;
+      transform: scaleX(0);
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--white-dim);
+      max-width: 500px;
+      line-height: 1.8;
+      opacity: 0;
+      font-weight: 300;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 3rem;
+      opacity: 0;
+    }
+
+    .btn-primary {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--black);
+      background: var(--accent);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.85rem 2.5rem;
+      border: none;
+      cursor: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before { left: 100%; }
+    .btn-primary:hover { box-shadow: 0 0 40px rgba(0, 255, 136, 0.3); }
+
+    .btn-outline {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--white);
+      background: transparent;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.85rem 2.5rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: none;
+      font-weight: 400;
+      transition: all 0.3s;
+    }
+
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+    }
+
+    .scroll-indicator span {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--white-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+
+    .scroll-indicator .scroll-line-anim {
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(0.5); }
+      50% { opacity: 1; transform: scaleY(1); }
+    }
+
+    /* ========== METRICS STRIP ========== */
+    .metrics-strip {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 3rem 3rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      background: var(--bg-subtle);
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0 3rem;
+    }
+
+    .metric-val {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--white-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .metric-divider {
+      width: 1px;
+      height: 40px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* ========== PARTNERS STRIP ========== */
+    .partners {
+      position: relative;
+      z-index: 3;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 2.5rem 0;
+      overflow: hidden;
+    }
+
+    .partners-label {
+      position: absolute;
+      top: 50%;
+      left: 3rem;
+      transform: translateY(-50%);
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--white-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      z-index: 5;
+    }
+
+    .marquee {
+      display: flex;
+      animation: marquee 30s linear infinite;
+      width: max-content;
+    }
+
+    .marquee:hover { animation-play-state: paused; }
+
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .partner-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4rem;
+      flex-shrink: 0;
+      opacity: 0.3;
+      transition: opacity 0.4s;
+    }
+
+    .partner-logo:hover { opacity: 1; }
+
+    .partner-logo svg text {
+      font-family: var(--font-display);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    /* ========== SECTION DEFAULTS ========== */
+    section {
+      position: relative;
+      z-index: 3;
+      padding: 8rem 3rem;
+    }
+
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-tag {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-tag::before {
+      content: '';
+      width: 30px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .section-heading {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-text {
+      font-size: 0.95rem;
+      color: var(--white-dim);
+      max-width: 550px;
+      line-height: 1.8;
+      font-weight: 300;
+      margin-bottom: 3.5rem;
+    }
+
+    /* ========== SERVICES ========== */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .service-cell {
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 3rem 2.5rem;
+      position: relative;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: none;
+      overflow: hidden;
+    }
+
+    .service-cell::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(0, 255, 136, 0.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .service-cell:hover::before { opacity: 1; }
+
+    .service-cell:hover {
+      background: #151515;
+      border-color: rgba(0, 255, 136, 0.1);
+    }
+
+    .service-number {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: rgba(0, 255, 136, 0.5);
+      letter-spacing: 0.2em;
+      margin-bottom: 2rem;
+    }
+
+    .service-cell h3 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .service-cell p {
+      font-size: 0.82rem;
+      color: #888;
+      line-height: 1.8;
+      font-weight: 300;
+    }
+
+    /* ========== SHOWCASE / VIDEO CAROUSEL ========== */
+    .showcase {
+      background: var(--bg-subtle);
+      padding-bottom: 6rem;
+    }
+
+    .showcase-scroll {
+      display: flex;
+      gap: 1.5rem;
+      overflow: hidden;
+      padding: 0 0 2rem;
+      width: 100%;
+    }
+
+    .showcase-track {
+      display: flex;
+      gap: 1.5rem;
+      animation: showcaseMarquee 40s linear infinite;
+      width: max-content;
+    }
+
+    .showcase-track:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes showcaseMarquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .showcase-card {
+      flex: 0 0 300px;
+      position: relative;
+      overflow: hidden;
+      cursor: none;
+      background: var(--black);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.4s;
+    }
+
+    .showcase-card:hover {
+      border-color: rgba(0, 255, 136, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .showcase-card .vid-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9/14;
+      max-height: 500px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .showcase-card .vid-wrap video,
+    .showcase-card .vid-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      transition: transform 0.6s;
+      background: var(--black);
+    }
+
+    .showcase-card:hover .vid-wrap video,
+    .showcase-card:hover .vid-wrap img {
+      transform: scale(1.05);
+    }
+
+    .showcase-card .vid-overlay {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%;
+      padding: 1.25rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, transparent 70%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .showcase-card .vid-overlay h4 {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      line-height: 1.3;
+    }
+
+    .showcase-card .vid-overlay .vid-desc {
+      font-size: 0.65rem;
+      color: #999;
+      line-height: 1.6;
+      margin-top: 0.5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .showcase-card .vid-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .showcase-card .vid-meta span {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--white-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .showcase-card .vid-meta .platform-tag {
+      color: var(--accent);
+      border: 1px solid var(--accent-dim);
+      padding: 0.15rem 0.5rem;
+      font-size: 0.5rem;
+    }
+
+
+
+    .no-videos {
+      text-align: center;
+      padding: 4rem 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--white-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    /* ========== STATS ========== */
+    .stats-section {
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .stat-block {
+      padding: 4rem 2.5rem;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-block:last-child { border-right: none; }
+
+    .stat-block .stat-val {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-block .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--white-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-top: 0.75rem;
+    }
+
+    /* ========== CASE STUDIES ========== */
+    .case-studies {
+      background: var(--bg-subtle);
+    }
+
+    .cases-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .case-card {
+      background: #0d0d0d;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 2.5rem;
+      position: relative;
+      transition: all 0.4s;
+    }
+
+    .case-card:hover {
+      border-color: rgba(0, 255, 136, 0.15);
+      background: #111;
+    }
+
+    .case-number {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.04);
+      position: absolute;
+      top: 1.5rem;
+      right: 2rem;
+      line-height: 1;
+    }
+
+    .case-client {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.75rem;
+    }
+
+    .case-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      margin-bottom: 1rem;
+    }
+
+    .case-card p {
+      font-size: 0.82rem;
+      color: #888;
+      line-height: 1.85;
+      font-weight: 300;
+    }
+
+    /* ========== CTA ========== */
+    .cta-section {
+      text-align: center;
+      padding: 10rem 3rem;
+      position: relative;
+    }
+
+    .cta-section .cta-glow {
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 255, 136, 0.04) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      filter: blur(120px);
+      pointer-events: none;
+    }
+
+    .cta-heading {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .cta-text {
+      font-size: 0.95rem;
+      color: var(--white-dim);
+      max-width: 480px;
+      margin: 0 auto 3rem;
+      line-height: 1.8;
+      font-weight: 300;
+      position: relative;
+    }
+
+    /* ========== FOOTER ========== */
+    footer {
+      position: relative;
+      z-index: 3;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 2rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    footer span {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--white-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    footer a:hover { opacity: 0.7; }
+
+    /* ========== VIDEO MODAL ========== */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s;
+      cursor: none;
+      padding: 3rem;
+      overflow-y: auto;
+    }
+
+    .modal.active { opacity: 1; pointer-events: all; }
+
+    .modal-content {
+      max-width: 600px;
+      width: 100%;
+      position: relative;
+    }
+
+    .modal-client {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      margin-bottom: 1rem;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-desc {
+      font-size: 1rem;
+      color: var(--white-dim);
+      line-height: 1.9;
+      font-weight: 300;
+      margin-bottom: 2rem;
+    }
+
+    .modal-meta {
+      display: flex;
+      gap: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .modal-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .modal-meta-label {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      color: var(--white-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .modal-meta-value {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      position: fixed;
+      top: 2rem; right: 3rem;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--white-muted);
+      background: none;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 0.5rem 1rem;
+      cursor: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.3s;
+      z-index: 100001;
+    }
+
+    .modal-close:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ========== MOBILE MENU ========== */
+    .mobile-toggle {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--white);
+      background: none;
+      border: none;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      cursor: none;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.25rem; }
+      .nav-links { display: none; }
+      .mobile-toggle { display: block; }
+      .nav-cta { padding: 0.5rem 1rem; font-size: 0.6rem; }
+      .nav-right { gap: 1rem; }
+
+      section { padding: 4rem 1.25rem; }
+
+      .hero { min-height: 100svh; padding: 7rem 1.25rem 3rem; }
+      .hero-title { font-size: clamp(2.8rem, 11vw, 5rem); }
+      .hero-sub { font-size: 0.6rem; margin-top: 2rem; letter-spacing: 0.15em; }
+      .hero-desc { font-size: 0.9rem; padding: 0 0.5rem; }
+      .hero-cta-group { flex-direction: column; align-items: center; gap: 0.75rem; }
+      .btn-primary, .btn-outline { width: 100%; text-align: center; display: flex; justify-content: center; }
+
+      .metrics-strip { flex-wrap: wrap; gap: 1.25rem; padding: 2rem 1.25rem; }
+      .metric-divider { display: none; }
+      .metric-item { padding: 0 1rem; flex: 0 0 calc(50% - 1rem); text-align: center; }
+      .metric-val { font-size: 1.35rem; }
+
+      .services-grid { grid-template-columns: 1fr; }
+      .service-cell { padding: 2rem 1.5rem; }
+
+      .showcase-card { flex: 0 0 240px; }
+      .showcase-scroll { padding: 0; }
+      .showcase-track { gap: 1rem; }
+
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .stat-block { padding: 2.5rem 1.5rem; }
+      .stat-block:nth-child(2) { border-right: none; }
+      .stat-block .stat-val { font-size: 2rem; }
+
+      .cases-grid { grid-template-columns: 1fr; }
+      .case-card { padding: 2rem 1.5rem; }
+      .case-number { font-size: 2.5rem; top: 1rem; right: 1.25rem; }
+
+      .cta-heading { font-size: clamp(1.8rem, 7vw, 3rem); }
+      .cta-section { padding: 6rem 1.25rem; }
+
+      .partners-label { display: none; }
+      .coord-tag, .section-number { display: none; }
+      .corner-bracket { display: none; }
+
+      footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 2rem 1.25rem; }
+
+      body { cursor: auto; }
+      .cursor, .cursor-dot { display: none; }
+
+      .section-heading { font-size: clamp(1.75rem, 6vw, 2.5rem); }
+      .section-text { font-size: 0.85rem; }
+    }
+
+    @media (max-width: 400px) {
+      .hero-title { font-size: 2.5rem; }
+      .metric-item { flex: 0 0 100%; }
+      .nav-brand { font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- OVERLAYS -->
+<div class="scroll-line" id="scrollLine"></div>
+<div class="grid-overlay"></div>
+<div class="corner-bracket corner-tl"></div>
+<div class="corner-bracket corner-br"></div>
+
+<!-- FIXED UI -->
+<div class="coord-tag">Est. 2017 — Global Operations</div>
+<div class="section-number" id="sectionNum">001</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">PayGamers</div>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#showcase">Work</a></li>
+      <li><a href="#stats">Results</a></li>
+      <li><a href="#cases">Cases</a></li>
+    </ul>
+    <a href="https://cal.com/paygamers" target="_blank" class="nav-cta">Book a Call ↗</a>
+    <button class="mobile-toggle" onclick="document.querySelector('.nav-links').classList.toggle('show')">Menu</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <h1 class="hero-title">
+    <div class="line"><span>We Scale</span></div>
+    <div class="line"><span class="stroke-text">Gambling</span></div>
+    <div class="line"><span class="accent-text">Brands.</span></div>
+  </h1>
+  <p class="hero-sub">Influencer Marketing × Media Buying × Performance</p>
+  <div class="hero-line"></div>
+  <p class="hero-desc">
+    The agency behind the biggest influencer deals in iGaming. We connect Tier-1 creators with the platforms that pay the most — and we make every dollar convert.
+  </p>
+  <div class="hero-cta-group">
+    <a href="https://cal.com/paygamers" target="_blank" class="btn-primary">Book Strategy Call</a>
+    <a href="#showcase" class="btn-outline">See Our Work</a>
+  </div>
+  <div class="scroll-indicator" id="scrollInd">
+    <span>Scroll</span>
+    <div class="scroll-line-anim"></div>
+  </div>
+</section>
+
+<!-- METRICS STRIP -->
+<div class="metrics-strip" id="metricsStrip">
+  <div class="metric-item">
+    <span class="metric-val">$50M+</span>
+    <span class="metric-label">Player Deposits Driven</span>
+  </div>
+  <div class="metric-divider"></div>
+  <div class="metric-item">
+    <span class="metric-val">200+</span>
+    <span class="metric-label">Campaigns Deployed</span>
+  </div>
+  <div class="metric-divider"></div>
+  <div class="metric-item">
+    <span class="metric-val">50M+</span>
+    <span class="metric-label">Audience Reach</span>
+  </div>
+  <div class="metric-divider"></div>
+  <div class="metric-item">
+    <span class="metric-val">12+</span>
+    <span class="metric-label">Active Markets</span>
+  </div>
+</div>
+
+<!-- PARTNERS -->
+<div class="partners">
+  <div class="partners-label">Trusted Partners</div>
+  <div class="marquee" id="marquee">
+    <div class="partner-logo"><svg width="110" height="36" viewBox="0 0 110 36"><text x="55" y="26" text-anchor="middle" font-size="24" font-weight="700" fill="#0D7CFF" font-family="Space Grotesk, sans-serif">stake</text></svg></div>
+    <div class="partner-logo"><svg width="120" height="36" viewBox="0 0 120 36"><text x="60" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#FFD700" font-family="Space Grotesk, sans-serif">Roobet</text></svg></div>
+    <div class="partner-logo"><svg width="130" height="36" viewBox="0 0 130 36"><text x="65" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#00B4FF" font-family="Space Grotesk, sans-serif">Rainbet</text></svg></div>
+    <div class="partner-logo"><svg width="150" height="36" viewBox="0 0 150 36"><text x="75" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#5cb85c" font-family="Space Grotesk, sans-serif">DraftKings</text></svg></div>
+    <div class="partner-logo"><svg width="160" height="36" viewBox="0 0 160 36"><text x="80" y="26" text-anchor="middle" font-size="20" font-weight="700" fill="#E84393" font-family="Space Grotesk, sans-serif">Motherland</text></svg></div>
+    <div class="partner-logo"><svg width="140" height="36" viewBox="0 0 140 36"><text x="70" y="26" text-anchor="middle" font-size="21" font-weight="700" fill="#8B5CF6" font-family="Space Grotesk, sans-serif">PrizePicks</text></svg></div>
+    <div class="partner-logo"><svg width="120" height="36" viewBox="0 0 120 36"><text x="60" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#1493FF" font-family="Space Grotesk, sans-serif">FanDuel</text></svg></div>
+    <div class="partner-logo"><svg width="120" height="36" viewBox="0 0 120 36"><text x="60" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#FFC107" font-family="Space Grotesk, sans-serif">BC.Game</text></svg></div>
+    <div class="partner-logo"><svg width="130" height="36" viewBox="0 0 130 36"><text x="65" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#00C9A7" font-family="Space Grotesk, sans-serif">WynnBET</text></svg></div>
+    <!-- Duplicate set for seamless loop -->
+    <div class="partner-logo"><svg width="110" height="36" viewBox="0 0 110 36"><text x="55" y="26" text-anchor="middle" font-size="24" font-weight="700" fill="#0D7CFF" font-family="Space Grotesk, sans-serif">stake</text></svg></div>
+    <div class="partner-logo"><svg width="120" height="36" viewBox="0 0 120 36"><text x="60" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#FFD700" font-family="Space Grotesk, sans-serif">Roobet</text></svg></div>
+    <div class="partner-logo"><svg width="130" height="36" viewBox="0 0 130 36"><text x="65" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#00B4FF" font-family="Space Grotesk, sans-serif">Rainbet</text></svg></div>
+    <div class="partner-logo"><svg width="150" height="36" viewBox="0 0 150 36"><text x="75" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#5cb85c" font-family="Space Grotesk, sans-serif">DraftKings</text></svg></div>
+    <div class="partner-logo"><svg width="160" height="36" viewBox="0 0 160 36"><text x="80" y="26" text-anchor="middle" font-size="20" font-weight="700" fill="#E84393" font-family="Space Grotesk, sans-serif">Motherland</text></svg></div>
+    <div class="partner-logo"><svg width="140" height="36" viewBox="0 0 140 36"><text x="70" y="26" text-anchor="middle" font-size="21" font-weight="700" fill="#8B5CF6" font-family="Space Grotesk, sans-serif">PrizePicks</text></svg></div>
+    <div class="partner-logo"><svg width="120" height="36" viewBox="0 0 120 36"><text x="60" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#1493FF" font-family="Space Grotesk, sans-serif">FanDuel</text></svg></div>
+    <div class="partner-logo"><svg width="120" height="36" viewBox="0 0 120 36"><text x="60" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#FFC107" font-family="Space Grotesk, sans-serif">BC.Game</text></svg></div>
+    <div class="partner-logo"><svg width="130" height="36" viewBox="0 0 130 36"><text x="65" y="26" text-anchor="middle" font-size="22" font-weight="700" fill="#00C9A7" font-family="Space Grotesk, sans-serif">WynnBET</text></svg></div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-inner">
+    <div class="section-tag">What We Do</div>
+    <h2 class="section-heading">Full-Stack Player<br>Acquisition.</h2>
+    <p class="section-text">
+      We don't run ads — we engineer acquisition machines. From sourcing the right creator to optimizing every touchpoint in the funnel, we own the full pipeline.
+    </p>
+  </div>
+  <div class="section-inner">
+    <div class="services-grid">
+      <div class="service-cell">
+        <div class="service-number">001</div>
+        <h3>Influencer Sourcing</h3>
+        <p>20,000+ vetted creators across gaming, crypto, and lifestyle. We match the right voice to your brand — no spray and pray.</p>
+      </div>
+      <div class="service-cell">
+        <div class="service-number">002</div>
+        <h3>Media Buying</h3>
+        <p>Programmatic and direct buys across every channel that converts. We optimize for FTDs, not impressions.</p>
+      </div>
+      <div class="service-cell">
+        <div class="service-number">003</div>
+        <h3>Campaign Strategy</h3>
+        <p>CPA, RevShare, and hybrid structures engineered for maximum LTV. Every campaign has a kill switch and a scale lever.</p>
+      </div>
+      <div class="service-cell">
+        <div class="service-number">004</div>
+        <h3>Global Geo Coverage</h3>
+        <p>65+ territories with localized creative, native-speaking talent, and compliance built in. LATAM, SEA, CIS, Africa — we're already there.</p>
+      </div>
+      <div class="service-cell">
+        <div class="service-number">005</div>
+        <h3>Performance Analytics</h3>
+        <p>Real-time dashboards. Conversion attribution. Traffic quality scoring. You see exactly where every dollar goes and what it brings back.</p>
+      </div>
+      <div class="service-cell">
+        <div class="service-number">006</div>
+        <h3>Fraud Prevention</h3>
+        <p>Multi-layer fraud detection, bot filtering, and compliance across every geo. Clean traffic or we don't send it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOWCASE -->
+<section class="showcase" id="showcase">
+  <div class="section-inner">
+    <div class="section-tag">Portfolio</div>
+    <h2 class="section-heading">Influencer<br>Deal Showcase.</h2>
+    <p class="section-text">
+      Real campaigns. Real creators. Real conversions. Every deal below drove measurable player acquisition at scale.
+    </p>
+  </div>
+  <div class="showcase-scroll">
+    <div class="showcase-track" id="videoCarousel"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section" id="stats">
+  <div class="section-inner" style="margin-bottom:3rem;">
+    <div class="section-tag">Results</div>
+    <h2 class="section-heading">Numbers That<br>Hit Different.</h2>
+  </div>
+  <div class="section-inner">
+    <div class="stats-row">
+      <div class="stat-block">
+        <div class="stat-val">11×</div>
+        <div class="stat-label">Average ROI</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-val">9+</div>
+        <div class="stat-label">Years in iGaming</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-val">65+</div>
+        <div class="stat-label">Geos Covered</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-val">20K</div>
+        <div class="stat-label">Vetted Creators</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section class="case-studies" id="cases">
+  <div class="section-inner">
+    <div class="section-tag">Case Studies</div>
+    <h2 class="section-heading">What We've<br>Actually Done.</h2>
+    <p class="section-text">We don't talk theory. Every line below is a real campaign we ran, a real budget we managed, a real result we delivered.</p>
+  </div>
+  <div class="section-inner">
+    <div class="cases-grid">
+      <div class="case-card">
+        <div class="case-number">01</div>
+        <div class="case-client">Kalshi</div>
+        <h3>UGC-Driven Market Entry</h3>
+        <p>When Kalshi needed to break into the prediction market space, they came to us. We built a UGC content engine — deploying creator-driven short-form content that educated, entertained, and converted. Our strategy positioned Kalshi as the go-to platform for event contracts, driving massive organic reach and first-time deposits through creator authenticity over corporate polish.</p>
+      </div>
+      <div class="case-card">
+        <div class="case-number">02</div>
+        <div class="case-client">PrizePicks</div>
+        <h3>9-Figure Media Buying</h3>
+        <p>We managed PrizePicks' media buying operation across every major acquisition channel — overseeing a 9-figure annual ad budget. From programmatic display to paid social, influencer amplification to CTV, we optimized every dollar for cost-per-FTD while maintaining traffic quality at scale. The result: the fastest-growing DFS platform in the country.</p>
+      </div>
+      <div class="case-card">
+        <div class="case-number">03</div>
+        <div class="case-client">Stake</div>
+        <h3>Tier-1 Streamer Partnerships</h3>
+        <p>We brokered and managed exclusive partnerships between Stake and some of the biggest streamers on the planet. Names we're not at liberty to disclose — but if you've watched a top-10 gambling stream in the last three years, chances are we were behind the deal. Multi-million dollar contracts. Global reach. Category-defining campaigns.</p>
+      </div>
+      <div class="case-card">
+        <div class="case-number">04</div>
+        <div class="case-client">Rainbet</div>
+        <h3>5 Billion Views in 2026</h3>
+        <p>We built Rainbet's entire UGC creator program from zero. Recruited, briefed, and managed hundreds of creators producing short-form content across TikTok, YouTube Shorts, and Instagram Reels. The result: over 5 billion organic views in 2026 alone — making Rainbet one of the most visible brands in the iGaming space without a single traditional ad dollar.</p>
+      </div>
+      <div class="case-card">
+        <div class="case-number">05</div>
+        <div class="case-client">Roobet</div>
+        <h3>A-List Celebrity Roster & Global Reach</h3>
+        <p>We built Roobet's entire celebrity influencer pipeline from scratch — landing marquee names like Snoop Dogg, Drake, and a roster of A-list talent that turned a crypto casino into a cultural phenomenon. From talent scouting and contract negotiation to creative direction and multi-platform rollout, we engineered partnerships that generated billions of impressions, drove record first-time deposits, and positioned Roobet as the most recognizable brand in crypto gambling worldwide.</p>
+      </div>
+      <div class="case-card">
+        <div class="case-number">06</div>
+        <div class="case-client">BC.Game</div>
+        <h3>Celebrity-Driven Crypto Acquisition</h3>
+        <p>BC.Game needed cultural relevance in a crowded crypto casino market. We built their celebrity influencer pipeline — landing Antonio Brown and other high-profile talent. The campaign dominated social feeds, generated record engagement metrics, and proved that personality-driven marketing outperforms every paid channel in crypto gaming.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <div class="section-tag" style="justify-content:center;">Let's Talk</div>
+  <h2 class="cta-heading">Stop Burning Budget.<br>Start Printing Players.</h2>
+  <p class="cta-text">
+    You've seen what we do. Now let's talk about doing it for you. One call. No fluff. Just strategy.
+  </p>
+  <a href="https://cal.com/paygamers" target="_blank" class="btn-primary" style="font-size:0.75rem;padding:1rem 3rem;">Book Your Strategy Call ↗</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 PayGamers. All Rights Reserved.</span>
+  <span><a href="https://cal.com/paygamers" target="_blank">Book a Call</a></span>
+</footer>
+
+<!-- MODAL -->
+<div class="modal" id="videoModal">
+  <button class="modal-close" onclick="closeModal()">Close [Esc]</button>
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ========== INIT ==========
+  window.addEventListener('load', () => {
+    animateHero();
+  });
+
+  // ========== CUSTOM CURSOR ==========
+  const cursor = document.getElementById('cursor');
+  const cursorDot = document.getElementById('cursorDot');
+  let mx = 0, my = 0, cx = 0, cy = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mx = e.clientX;
+    my = e.clientY;
+    cursorDot.style.left = mx + 'px';
+    cursorDot.style.top = my + 'px';
+  });
+
+  function animateCursor() {
+    cx += (mx - cx) * 0.15;
+    cy += (my - cy) * 0.15;
+    cursor.style.left = cx + 'px';
+    cursor.style.top = cy + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  // Hover states
+  document.querySelectorAll('a, button, .service-cell, .showcase-card').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+
+  // ========== SERVICE CELL GLOW ==========
+  document.querySelectorAll('.service-cell').forEach(cell => {
+    cell.addEventListener('mousemove', (e) => {
+      const rect = cell.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      cell.style.setProperty('--mx', x + '%');
+      cell.style.setProperty('--my', y + '%');
+    });
+  });
+
+  // ========== SCROLL PROGRESS ==========
+  window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    document.getElementById('scrollLine').style.width = pct + '%';
+
+    // Section number
+    const sections = ['001', '002', '003', '004', '005'];
+    const idx = Math.min(Math.floor(pct / 25), 4);
+    document.getElementById('sectionNum').textContent = sections[idx] || '001';
+  });
+
+  // ========== HERO ANIMATION ==========
+  function animateHero() {
+    const tl = gsap.timeline();
+
+    tl.to('.hero-title .line span', {
+      y: 0,
+      duration: 1.2,
+      stagger: 0.15,
+      ease: 'power4.out',
+    })
+    .to('.hero-sub', { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
+    .to('.hero-line', { opacity: 1, scaleX: 1, duration: 0.6 }, '-=0.3')
+    .to('.hero-desc', { opacity: 1, y: 0, duration: 0.8 }, '-=0.3')
+    .to('.hero-cta-group', { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
+    .to('#scrollInd', { opacity: 1, duration: 0.6 }, '-=0.2');
+
+    // Float the glow
+    gsap.to('.hero-glow', {
+      scale: 1.15,
+      duration: 4,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
+  }
+
+  // ========== SCROLL ANIMATIONS ==========
+  // Metrics
+  gsap.from('#metricsStrip', {
+    scrollTrigger: { trigger: '#metricsStrip', start: 'top 90%' },
+    y: 20, opacity: 0, duration: 0.8,
+  });
+
+  // Services
+  gsap.utils.toArray('.service-cell').forEach((cell, i) => {
+    gsap.from(cell, {
+      scrollTrigger: { trigger: cell, start: 'top 90%' },
+      y: 40,
+      opacity: 0,
+      duration: 0.7,
+      delay: i * 0.08,
+    });
+  });
+
+  // Stats
+  gsap.utils.toArray('.stat-block').forEach((block, i) => {
+    gsap.from(block, {
+      scrollTrigger: { trigger: block, start: 'top 90%' },
+      y: 30,
+      opacity: 0,
+      duration: 0.6,
+      delay: i * 0.12,
+    });
+  });
+
+  // Case studies
+  gsap.utils.toArray('.case-card').forEach((card, i) => {
+    gsap.from(card, {
+      scrollTrigger: { trigger: card, start: 'top 90%' },
+      y: 50, opacity: 0, duration: 0.7, delay: i * 0.1,
+    });
+  });
+
+  // CTA
+  gsap.from('.cta-heading', {
+    scrollTrigger: { trigger: '.cta-heading', start: 'top 80%' },
+    y: 60, opacity: 0, duration: 1,
+  });
+
+  gsap.from('.cta-text', {
+    scrollTrigger: { trigger: '.cta-text', start: 'top 85%' },
+    y: 30, opacity: 0, duration: 0.8, delay: 0.2,
+  });
+
+  // Section headings
+  gsap.utils.toArray('.section-heading').forEach(h => {
+    gsap.from(h, {
+      scrollTrigger: { trigger: h, start: 'top 85%' },
+      y: 40, opacity: 0, duration: 0.8,
+    });
+  });
+
+  gsap.utils.toArray('.section-text').forEach(p => {
+    gsap.from(p, {
+      scrollTrigger: { trigger: p, start: 'top 88%' },
+      y: 20, opacity: 0, duration: 0.7, delay: 0.15,
+    });
+  });
+
+  // ========== VIDEO CAROUSEL ==========
+  async function loadVideos() {
+    try {
+      const videos = [
+        {"id":"mo7ut8h9ebanu","title":"Rainbet \u00d7 UGC Creators \u2014 5B+ Views","description":"We deployed a fleet of UGC creators for Rainbet, engineering viral short-form content that generated over 5 billion views across platforms in 2026.","influencer":"UGC Creator Network","platform":"Rainbet","videoUrl":"/videos/rainbet-ugc.mp4","order":1},
+        {"id":"mo7ut8hobwuqy","title":"Roobet \u00d7 Snoop Dogg \u2014 Celebrity Integration","description":"Brokered and executed the Snoop Dogg influencer partnership with Roobet \u2014 one of the highest-profile celebrity endorsements in iGaming history.","influencer":"Snoop Dogg","platform":"Roobet","videoUrl":"/videos/roobet-snoop.mp4","order":2},
+        {"id":"mo7ut8i0gk4df","title":"Motherland Casino \u00d7 N30N & Iggy Azalea","description":"Orchestrated the N30N and Iggy Azalea influencer campaign for Motherland Online Casino.","influencer":"N30N & Iggy Azalea","platform":"Motherland","videoUrl":"/videos/motherland-n30n.mp4","order":3},
+        {"id":"mo7vlo6dv3jbr","title":"PrizePicks \u00d7 Sugar Sean O'Malley","description":"Sugar Sean O'Malley brought his UFC starpower to PrizePicks, driving massive sign-ups from the combat sports community.","influencer":"Sean O'Malley","platform":"PrizePicks","videoUrl":"/videos/prizepicks-sugasean.mp4","order":4},
+        {"id":"mo7vlo6tmchjc","title":"FanDuel \u00d7 Kevin Durant \u2014 Superstar Endorsement","description":"Kevin Durant lending his name to FanDuel was one of the most impactful athlete endorsements in DFS history.","influencer":"Kevin Durant","platform":"FanDuel","videoUrl":"/videos/fanduel-kd.mp4","order":5},
+        {"id":"mo7vlo7fh5kor","title":"BC.Game \u00d7 Antonio Brown \u2014 Culture Meets Crypto","description":"Antonio Brown brought his larger-than-life personality to BC.Game, creating viral moments that dominated social timelines.","influencer":"Antonio Brown","platform":"BC.Game","videoUrl":"/videos/bcgame-ab.mp4","order":6},
+        {"id":"mo7vlo7maqpcu","title":"WynnBET \u00d7 Shaq \u2014 Legendary Partnership","description":"When WynnBET needed a face that screamed trust and entertainment, Shaq was the obvious play.","influencer":"Shaq","platform":"WynnBET","videoUrl":"/videos/wynnbet-shaq.mp4","order":7}
+      ];
+      _videosCache = videos;
+      const container = document.getElementById('videoCarousel');
+
+      if (!videos.length) {
+        container.innerHTML = '<div class="no-videos">[ No showcase videos yet — add them via /admin ]</div>';
+        return;
+      }
+
+      const cardHTML = videos.sort((a, b) => (a.order || 0) - (b.order || 0)).map(v => `
+        <div class="showcase-card" onclick="openModal('${v.id}')">
+          <div class="vid-wrap">
+            ${v.videoUrl
+              ? `<video muted autoplay loop playsinline preload="auto" webkit-playsinline>
+                  <source src="${v.videoUrl}" type="video/mp4">
+                </video>`
+              : v.thumbnailUrl
+                ? `<img src="${v.thumbnailUrl}" alt="${v.title}">`
+                : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--font-mono);font-size:0.6rem;color:var(--white-muted);text-transform:uppercase;letter-spacing:0.1em;">No Preview</div>`
+            }
+            <div class="vid-overlay">
+              <h4>${v.title || 'Untitled'}</h4>
+              ${v.description ? `<p class="vid-desc">${v.description}</p>` : ''}
+              <div class="vid-meta">
+                <span>${v.influencer || '—'}</span>
+                ${v.platform ? `<span class="platform-tag">${v.platform}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Duplicate cards for seamless infinite loop
+      container.innerHTML = cardHTML + cardHTML;
+
+      // Force autoplay on all showcase videos
+      container.querySelectorAll('video').forEach(vid => {
+        vid.muted = true;
+        vid.setAttribute('muted', '');
+        vid.setAttribute('playsinline', '');
+        vid.play().catch(() => {});
+      });
+
+      // Observe visibility — play when in view, pause when not
+      const vObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) e.target.play().catch(() => {});
+          else e.target.pause();
+        });
+      }, { threshold: 0.3 });
+      container.querySelectorAll('video').forEach(v => vObs.observe(v));
+
+      // Re-bind cursor hovers
+      document.querySelectorAll('.showcase-card').forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+      });
+
+    } catch (e) {
+      console.error('Failed to load videos:', e);
+    }
+  }
+
+  let _videosCache = [];
+
+  function openModal(id) {
+    const v = _videosCache.find(x => x.id === id);
+    if (!v) return;
+    const modal = document.getElementById('videoModal');
+    const content = document.getElementById('modalContent');
+    content.innerHTML = `
+      <div class="modal-client">${v.platform || ''}</div>
+      <h2 class="modal-title">${v.title || 'Untitled'}</h2>
+      <p class="modal-desc">${v.description || ''}</p>
+      <div class="modal-meta">
+        <div class="modal-meta-item">
+          <span class="modal-meta-label">Talent</span>
+          <span class="modal-meta-value">${v.influencer || '—'}</span>
+        </div>
+        <div class="modal-meta-item">
+          <span class="modal-meta-label">Platform</span>
+          <span class="modal-meta-value">${v.platform || '—'}</span>
+        </div>
+      </div>
+    `;
+    modal.classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('videoModal').classList.remove('active');
+  }
+
+  document.getElementById('videoModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  loadVideos();
+</script>
+
+</body>
+</html>
